@@ -150,7 +150,7 @@ function placePipes() {   //(0-1) *pipeHeight
 
 function moveBird(e) {
     if (e.code == "Space" || e.code == "ArrowUp" || e) {  //jump
-        velocityY = -6; jumpAudio.play();
+        velocityY = -6; 
 
         if (gameOver) {
             gameOver = false;
