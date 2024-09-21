@@ -67,7 +67,8 @@ window.onload = function () {
 
     setInterval(placePipes, 1500);
     document.addEventListener("keydown", moveBird);
-    document.addEventListener("Mousedown", moveBird);
+    document.addEventListener("click", moveBird);
+
 
 
     requestAnimationFrame(update);
@@ -99,7 +100,6 @@ function update() {
         if (!pipe.passed && bird.x > pipe.x + pipe.width) {
             score += 0.5;
             pipe.passed = true;
-            jumpAudio.play();
 
         }
         if (detectCollision(bird, pipe)) {
@@ -149,8 +149,9 @@ function placePipes() {   //(0-1) *pipeHeight
 }
 
 function moveBird(e) {
-    if (e.code == "Space" || e.code == "ArrowUp") {  //jump
-        velocityY = -6;
+    if (e.code == "Space" || e.code == "ArrowUp" || e) {  //jump
+        velocityY = -6; jumpAudio.play();
+
         if (gameOver) {
             gameOver = false;
             pipeArray = [];
