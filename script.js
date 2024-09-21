@@ -42,6 +42,7 @@ let gravity = 0.4;
 
 
 let gameOver = false;
+let score=0;
 
 window.onload = function () {
     board = document.getElementById('board');
@@ -86,11 +87,28 @@ function update() {
         let pipe = pipeArray[i];
         pipe.x += velocityX;
         context.drawImage(pipe.img, pipe.x, pipe.y, pipe.width, pipe.height);
+
+        if(!pipe.passed && bird.x>pipe.x+pipe.width)
+        {
+            score+=0.5;
+            pipe.passed=true;
+        }
         if (detectCollision(bird, pipe)) {
             gameOver = true;
         }
     }
-    
+     //clear pipes
+     if(pipeArray.length>0 && pipeArray[0]<-pipeWidth)
+        pipeArray.shift();
+
+    //score
+    context.fillStyle='white';
+    context.font='45px sans-serif';
+    context.fillText(score,5,45);
+    if(gameOver)
+    context.fillText('GAME OVER',5,90);
+
+
 }
 function placePipes() {   //(0-1) *pipeHeight
     //-128
@@ -123,7 +141,15 @@ function placePipes() {   //(0-1) *pipeHeight
 function moveBird(e) {
     if (e.code == "Space" || e.code == "ArrowUp") {  //jump
         velocityY = -6;
+        if(gameOver)
+            {
+                gameOver=false;
+                pipeArray=[];
+                bird.y=birdY;
+                score=0;
+            }
     }
+    
 }
 function detectCollision(a, b) {
     return a.x < b.x + b.width &&   //a's top left corner doesn't reach b's top right corner
