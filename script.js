@@ -45,9 +45,8 @@ let gameOver = false;
 let score = 0;
 
 //audio
-let gameOverAudio = document.querySelector('.gameOverAudio');
-let jumpAudio = document.querySelector('.jumpAudio');
-
+let gameOverAudio = new Audio("game-over-38511.mp3");
+let jumpAudio = new Audio("retro-jump-1-236684.mp3");
 
 window.onload = function () {
     board = document.getElementById('board');
@@ -78,7 +77,6 @@ function update() {
 
     requestAnimationFrame(update);
     if (gameOver) {
-        gameOverAudio.play();
         return;
     }
     context.clearRect(0, 0, boardWidth, boardHeight);
@@ -100,6 +98,7 @@ function update() {
         if (!pipe.passed && bird.x > pipe.x + pipe.width) {
             score += 0.5;
             pipe.passed = true;
+            jumpAudio.play();
 
         }
         if (detectCollision(bird, pipe)) {
@@ -123,6 +122,7 @@ function placePipes() {   //(0-1) *pipeHeight
     //-128
     //-128-256 
     if (gameOver) {
+        gameOverAudio.play();
         return;
 
     }
@@ -150,9 +150,11 @@ function placePipes() {   //(0-1) *pipeHeight
 
 function moveBird(e) {
     if (e.code == "Space" || e.code == "ArrowUp" || e) {  //jump
-        velocityY = -6; 
+        velocityY = -6;
 
         if (gameOver) {
+            gameOverAudio.pause();
+            gameOverAudio.currentTime=0;
             gameOver = false;
             pipeArray = [];
             bird.y = birdY;
