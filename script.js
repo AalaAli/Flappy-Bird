@@ -17,6 +17,26 @@ let bird = {
     width: birdWidth,
     height: birdHeight
 }
+//pipes
+let pipeArray=[];
+let pipeWidth=64;
+let pipeHeight=512;
+let pipeX=boardWidth;
+let pipeY=0;
+let pipeImg;
+
+let pipe={
+    x:pipeX,
+    y:pipeY,
+    width:pipeWidth,
+    height:pipeHeight
+}
+let topPipeImg;
+let bottomPipeImg;
+
+//physics
+let velocityX=-2;
+
 
 
 window.onload = function () {
@@ -30,5 +50,53 @@ window.onload = function () {
     birdImg.onload = function () {
         context.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
     }
+    topPipeImg=new Image();
+    topPipeImg.src="./toppipe.png";
+    bottomPipeImg=new Image();
+    bottomPipeImg.src="./bottompipe.png";
 
+  setInterval(placePipes,1500);
+
+
+requestAnimationFrame(update);
 };
+
+function update(){
+    requestAnimationFrame(update);
+    context.clearRect(0,0,boardWidth,boardHeight);
+
+    //bird
+    context.drawImage(birdImg,bird.x,bird.y,bird.width,bird.height);
+    //pipe
+    for(let i=0; i<pipeArray.length; i++)
+    {
+        let pipe=pipeArray[i];
+        pipe.x+=velocityX;
+        context.drawImage(pipe.img,pipe.x,pipe.y,pipe.width,pipe.height);
+    }
+}
+function placePipes()
+{   //(0-1) *pipeHeight
+    //-128
+    //-128-256 
+    let oppeningSpace= boardHeight/4;
+    let randomPipeY=pipeY-pipeHeight/4-Math.random()*(pipeHeight/2);
+    let topPipe={
+        img:topPipeImg,
+        x:pipeX,
+        y:randomPipeY,
+        width:pipeWidth,
+        height:pipeHeight,
+        passed:false
+    }
+    pipeArray.push(topPipe);
+    let bottomPipe={
+        img:bottomPipeImg,
+        x:pipeX,
+        y:randomPipeY+pipeHeight+oppeningSpace,
+        width:pipeWidth,
+        height:pipeHeight,
+        passed:false
+    }
+    pipeArray.push(bottomPipe);
+}
