@@ -18,26 +18,30 @@ let bird = {
     height: birdHeight
 }
 //pipes
-let pipeArray=[];
-let pipeWidth=64;
-let pipeHeight=512;
-let pipeX=boardWidth;
-let pipeY=0;
+let pipeArray = [];
+let pipeWidth = 64;
+let pipeHeight = 512;
+let pipeX = boardWidth;
+let pipeY = 0;
 let pipeImg;
 
-let pipe={
-    x:pipeX,
-    y:pipeY,
-    width:pipeWidth,
-    height:pipeHeight
+let pipe = {
+    x: pipeX,
+    y: pipeY,
+    width: pipeWidth,
+    height: pipeHeight
 }
 let topPipeImg;
 let bottomPipeImg;
 
 //physics
-let velocityX=-2;
+let velocityX = -2;
+let velocityY = 0;
+let gravity = 0.4;
 
 
+
+let gameOver = false;
 
 window.onload = function () {
     board = document.getElementById('board');
@@ -50,53 +54,81 @@ window.onload = function () {
     birdImg.onload = function () {
         context.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
     }
-    topPipeImg=new Image();
-    topPipeImg.src="./toppipe.png";
-    bottomPipeImg=new Image();
-    bottomPipeImg.src="./bottompipe.png";
+    topPipeImg = new Image();
+    topPipeImg.src = "./toppipe.png";
+    bottomPipeImg = new Image();
+    bottomPipeImg.src = "./bottompipe.png";
 
-  setInterval(placePipes,1500);
+    setInterval(placePipes, 1500);
+    document.addEventListener("keydown", moveBird);
 
-
-requestAnimationFrame(update);
+    requestAnimationFrame(update);
 };
 
-function update(){
+function update() {
+
     requestAnimationFrame(update);
-    context.clearRect(0,0,boardWidth,boardHeight);
+    if (gameOver) {
+        return;
+    }
+    context.clearRect(0, 0, boardWidth, boardHeight);
 
     //bird
-    context.drawImage(birdImg,bird.x,bird.y,bird.width,bird.height);
-    //pipe
-    for(let i=0; i<pipeArray.length; i++)
-    {
-        let pipe=pipeArray[i];
-        pipe.x+=velocityX;
-        context.drawImage(pipe.img,pipe.x,pipe.y,pipe.width,pipe.height);
+    velocityY += gravity;
+    //bird.y+=velocityY;
+    bird.y = Math.max(bird.y + velocityY, 0);//limit bird.y to top of the canvas
+    context.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
+    if (bird.y > boardHeight) {
+        gameOver = true;
     }
+    //pipe
+    for (let i = 0; i < pipeArray.length; i++) {
+        let pipe = pipeArray[i];
+        pipe.x += velocityX;
+        context.drawImage(pipe.img, pipe.x, pipe.y, pipe.width, pipe.height);
+        if (detectCollision(bird, pipe)) {
+            gameOver = true;
+        }
+    }
+    
 }
-function placePipes()
-{   //(0-1) *pipeHeight
+function placePipes() {   //(0-1) *pipeHeight
     //-128
     //-128-256 
-    let oppeningSpace= boardHeight/4;
-    let randomPipeY=pipeY-pipeHeight/4-Math.random()*(pipeHeight/2);
-    let topPipe={
-        img:topPipeImg,
-        x:pipeX,
-        y:randomPipeY,
-        width:pipeWidth,
-        height:pipeHeight,
-        passed:false
+    if (gameOver) {
+        return;
+    }
+    let oppeningSpace = boardHeight / 4;
+    let randomPipeY = pipeY - pipeHeight / 4 - Math.random() * (pipeHeight / 2);
+    let topPipe = {
+        img: topPipeImg,
+        x: pipeX,
+        y: randomPipeY,
+        width: pipeWidth,
+        height: pipeHeight,
+        passed: false
     }
     pipeArray.push(topPipe);
-    let bottomPipe={
-        img:bottomPipeImg,
-        x:pipeX,
-        y:randomPipeY+pipeHeight+oppeningSpace,
-        width:pipeWidth,
-        height:pipeHeight,
-        passed:false
+    let bottomPipe = {
+        img: bottomPipeImg,
+        x: pipeX,
+        y: randomPipeY + pipeHeight + oppeningSpace,
+        width: pipeWidth,
+        height: pipeHeight,
+        passed: false
     }
     pipeArray.push(bottomPipe);
+}
+
+function moveBird(e) {
+    if (e.code == "Space" || e.code == "ArrowUp") {  //jump
+        velocityY = -6;
+    }
+}
+function detectCollision(a, b) {
+    return a.x < b.x + b.width &&   //a's top left corner doesn't reach b's top right corner
+        a.x + a.width > b.x &&   //a's top right corner passes b's top left corner
+        a.y < b.y + b.height &&  //a's top left corner doesn't reach b's bottom left corner
+        a.y + a.height > b.y;    //a's bottom left corner passes b's top left corner
+
 }
