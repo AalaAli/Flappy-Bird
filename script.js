@@ -42,7 +42,12 @@ let gravity = 0.4;
 
 
 let gameOver = false;
-let score=0;
+let score = 0;
+
+//audio
+let gameOverAudio = document.querySelector('.gameOverAudio');
+let jumpAudio = document.querySelector('.jumpAudio');
+
 
 window.onload = function () {
     board = document.getElementById('board');
@@ -62,6 +67,8 @@ window.onload = function () {
 
     setInterval(placePipes, 1500);
     document.addEventListener("keydown", moveBird);
+    document.addEventListener("Mousedown", moveBird);
+
 
     requestAnimationFrame(update);
 };
@@ -70,6 +77,7 @@ function update() {
 
     requestAnimationFrame(update);
     if (gameOver) {
+        gameOverAudio.play();
         return;
     }
     context.clearRect(0, 0, boardWidth, boardHeight);
@@ -88,25 +96,26 @@ function update() {
         pipe.x += velocityX;
         context.drawImage(pipe.img, pipe.x, pipe.y, pipe.width, pipe.height);
 
-        if(!pipe.passed && bird.x>pipe.x+pipe.width)
-        {
-            score+=0.5;
-            pipe.passed=true;
+        if (!pipe.passed && bird.x > pipe.x + pipe.width) {
+            score += 0.5;
+            pipe.passed = true;
+            jumpAudio.play();
+
         }
         if (detectCollision(bird, pipe)) {
             gameOver = true;
         }
     }
-     //clear pipes
-     if(pipeArray.length>0 && pipeArray[0]<-pipeWidth)
+    //clear pipes
+    if (pipeArray.length > 0 && pipeArray[0] < -pipeWidth)
         pipeArray.shift();
 
     //score
-    context.fillStyle='white';
-    context.font='45px sans-serif';
-    context.fillText(score,5,45);
-    if(gameOver)
-    context.fillText('GAME OVER',5,90);
+    context.fillStyle = 'white';
+    context.font = '45px sans-serif';
+    context.fillText(score, 5, 45);
+    if (gameOver)
+        context.fillText('GAME OVER', 5, 90);
 
 
 }
@@ -115,6 +124,7 @@ function placePipes() {   //(0-1) *pipeHeight
     //-128-256 
     if (gameOver) {
         return;
+
     }
     let oppeningSpace = boardHeight / 4;
     let randomPipeY = pipeY - pipeHeight / 4 - Math.random() * (pipeHeight / 2);
@@ -141,15 +151,14 @@ function placePipes() {   //(0-1) *pipeHeight
 function moveBird(e) {
     if (e.code == "Space" || e.code == "ArrowUp") {  //jump
         velocityY = -6;
-        if(gameOver)
-            {
-                gameOver=false;
-                pipeArray=[];
-                bird.y=birdY;
-                score=0;
-            }
+        if (gameOver) {
+            gameOver = false;
+            pipeArray = [];
+            bird.y = birdY;
+            score = 0;
+        }
     }
-    
+
 }
 function detectCollision(a, b) {
     return a.x < b.x + b.width &&   //a's top left corner doesn't reach b's top right corner
